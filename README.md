@@ -1,8 +1,6 @@
 # pld-java-client
 
-PLD Check
-
-Es una solución de filtrado contra listas de cumplimiento para Prevención de Lavado de Dinero y Financiamiento al Terrorismo (PLD/FT).
+La API de Prevención de Lavado de Dinero (PLD) consulta a una persona en las listas de Personas Políticamente Expuestas (PEPs) y Personas vinculadas a Lavado de Dinero.
 
 ## Requisitos
 

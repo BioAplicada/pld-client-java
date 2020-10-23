@@ -7,10 +7,25 @@ La API de Prevención de Lavado de Dinero (PLD) consulta a una persona en las li
 1. Java >= 1.7
 2. Maven >= 3.3
 
+## Instalación
+
+**Prerrequisito**: obtener token de acceso y configuración de las credenciales de acceso. Consulte el manual **[aquí](https://github.com/APIHub-CdC/maven-github-packages)**.
+
+**Opción 1**: En caso que la configuración se integró en el archivo **settingsAPIHUB.xml** (ubicado en la raíz del proyecto), instale las dependencias con siguiente comando:
+
+```shell
+mvn --settings settingsAPIHUB.xml clean install -Dmaven.test.skip=true
+```
+
+**Opción 2**: Si se integró la configuración en el **settings.xml** del **.m2**, instale las dependencias con siguiente comando:
+
+```shell
+mvn install -Dmaven.test.skip=true
+```
+
 ## Guía de inicio
 
 ### Paso 1. Generar llave y certificado
-
 Antes de lanzar la prueba se deberá tener un keystore para la llave privada y el certificado asociado a ésta.
 Para generar el keystore se ejecutan las instrucciones que se encuentran en ***src/main/security/createKeystore.sh*** ó con los siguientes comandos:
 
@@ -93,38 +108,35 @@ keytool -list -keystore ${KEYSTORE_FILE} \
   -storepass ${KEYSTORE_PASSWORD}
 ```
 
-### Paso 2. Cargar el certificado dentro del portal de desarrolladores
-
-1. Después de iniciar sesión, hacer clic en la sección "**Mis aplicaciones**".
-2. Seleccionar la aplicación.
-3. Ir a la pestaña de "**Certificados para @tuApp**".
-<p align="center">
-  <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png" width="268">
-</p>
-
-4. Al abrir una ventana emergente se deberá cargar el certificado previamente creado y darle clic al botón "**Cargar**", como se muestra en la siguiente imagen.
-<p align="center">
-  <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/upload_cert.png" width="268">
-</p>
-
-### Paso 3. Descargar el certificado de Círculo de Crédito dentro del portal de desarrolladores
-
-1. Después de iniciar sesión, hacer clic en la sección "**Mis aplicaciones**".
-2. Seleccionar la aplicación.
-3. Ir a la pestaña de "**Certificados para @tuApp**".
-<p align="center">
-  <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png" width="268">
-</p>
-
-4. Al abrir una ventana emergente se deberá dar clic al botón "**Descargar**" como se muestra en la siguiente imagen; el certificado comenzará a descargarse.
-<p align="center">
-  <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/download_cert.png" width="268">
-</p>
-
+### Paso 2. Carga del certificado dentro del portal de desarrolladores
+ 1. Iniciar sesión.
+ 2. Dar clic en la sección "**Mis aplicaciones**".
+ 3. Seleccionar la aplicación.
+ 4. Ir a la pestaña de "**Certificados para @tuApp**".
+    <p align="center">
+      <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png">
+    </p>
+ 5. Al abrirse la ventana emergente, seleccionar el certificado previamente creado y dar clic en el botón "**Cargar**":
+    <p align="center">
+      <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/upload_cert.png" width="268">
+    </p>
+    
+### Paso 3. Descarga del certificado de Círculo de Crédito dentro del portal de desarrolladores
+ 1. Iniciar sesión.
+ 2. Dar clic en la sección "**Mis aplicaciones**".
+ 3. Seleccionar la aplicación.
+ 4. Ir a la pestaña de "**Certificados para @tuApp**".
+    <p align="center">
+        <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png">
+    </p>
+ 5. Al abrirse la ventana emergente, dar clic al botón "**Descargar**":
+    <p align="center">
+        <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/download_cert.png" width="268">
+    </p>
+    
 ### Paso 4. Modificar archivo de configuraciones
 
-Para hacer uso del certificado que se descargó y el keystore que se creó se deberán modificar las rutas que se encuentran en ***src/main/resources/config.properties***
-
+Para hacer uso del certificado que se descargó y el keystore que se creó se deberán modificar las rutas que se encuentran e
 ```properties
 keystore_file=your_path_for_your_keystore/keystore.jks
 cdc_cert_file=your_path_for_certificate_of_cdc/cdc_cert.pem
@@ -134,57 +146,89 @@ key_password=your_super_secure_password
 ```
 
 ### Paso 5. Modificar URL
+En el archivo ApiTest.java, que se encuentra en ***src/test/java/com/cdc/apihub/mx/pld/client/api/***. Se deberá modificar los datos de la petición y los datos de consumo:
 
-Modificar la URL de la petición en ***src/main/java/io/apihub/client/ApiClient*** en la línea 40, como se muestra en el siguiente fragmento de código:
+1. Configurar ubicación y acceso de la llave creado en el **paso 1** y el certificado descargado en el **paso 2**
+   - keystoreFile: ubicacion del archivo keystore.jks
+   - cdcCertFile: ubicacion del archivo cdc_cert.pem
+   - keystorePassword: contraseña de cifrado del keystore
+   - keyAlias: alias asignado al keystore
+   - keyPassword: contraseña de cifrado del contenedor
+
+2. Credenciales de acceso dadas por Círculo de Crédito, obtenidas despues de la afiliación
+   - usernameCDC: usuario de Círculo de Crédito
+   - passwordCDC: contraseña de Círculo de Crédito
+	
+2. Datos de consumo del API
+   - url: URL de la exposicón del API
+   - xApiKey: Ubicada en la aplicación (creada en el **paso 2**) del portal y nombrada como Consumer Key 
+
+> **NOTA:** Los datos de la siguiente petición son solo representativos.
 
 ```java
-public class ApiClient {
 
-    private String basePath = "the_url";
-    private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
-    private String tempFolderPath = null;
-    private JSON json;
-```
+package com.cdc.apihub.mx.pld.client.api;
+...
 
-### Paso 6. Capturar los datos de la petición
+public class PldApiTest {
 
-En el archivo **PldApiTest**, que se encuentra en ***src/test/java/io/apihub/client/api*** se deberá modificar el siguiente fragmento de código con los datos correspondientes en el objeto *Peticion*:
+	private Logger logger = LoggerFactory.getLogger(PldApiTest.class.getName());
+    private final PldApi api = new PldApi();
+    private ApiClient apiClient;
 
-```java
-  @Before()
-  public void setUp() {
-      this.apiClient = api.getApiClient();
-      OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-          .readTimeout(30, TimeUnit.SECONDS)
-          .addInterceptor(new SignerInterceptor())
-          .build();
-      apiClient.setHttpClient(okHttpClient);
-  }
-  @Test
+	private String keystoreFile = "your_path_for_your_keystore/keystore.jks";
+	private String cdcCertFile = "your_path_for_certificate_of_cdc/cdc_cert_dev.pem";
+	private String keystorePassword = "your_super_secure_keystore_password";
+	private String keyAlias = "your_key_alias";
+	private String keyPassword = "your_super_secure_password";
+	
+	private String usernameCDC = "your_username_otrorgante";
+	private String passwordCDC = "your_password_otorgante";	
+	
+	private String url = "the_url";
+	private String xApiKey = "X_Api_Key";
+	
+	private SignerInterceptor interceptor;
+    
+    @Before()
+    public void setUp() {
+    	interceptor = new SignerInterceptor(this.keystoreFile, this.cdcCertFile, this.keystorePassword, 
+    										this.keyAlias, this.keyPassword);
+		this.apiClient = api.getApiClient();
+		this.apiClient.setBasePath(url);
+		OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+			    .addInterceptor(interceptor)
+			    .build();
+		apiClient.setHttpClient(okHttpClient);
+    }
+
+    @Test
     public void getValidadorTest() throws ApiException {
-        String xApiKey = "XXXXXXXXXXX";
-        String username = "XXXXXXXXXXX";
-        String password = "XXXXXXXXXXX";
+		Integer statusNotFound = 404;	
         Peticion body = new Peticion();
-
-        body.setNombres("XXXXXXXXXXX");
-        body.setApellidoPaterno("XXXXXXXXXXX");
-        body.setApellidoMaterno("XXXXXXXXXXX");
+        
+        body.setNombres("JUAN");
+        body.setApellidoPaterno("PRUEBA");
+        body.setApellidoMaterno("CUATRO");
 
         try {
-            Respuesta response = api.getValidador(xApiKey, username, password, body);
-            System.out.println(response.toString());
+            Respuesta response = api.getPLD(xApiKey, this.usernameCDC, this.passwordCDC, body);
+            assertTrue(response.getFolioConsulta() != null);
+            logger.info(response.toString());
         } catch (ApiException e) {
-            e.printStackTrace();
-            System.out.println(e.getResponseBody());
+        	assertTrue(statusNotFound.equals(e.getCode()));
+            logger.error(e.getResponseBody());
         }
     }
+}		}
+	}  
+}
 ```
 
-### Paso 7. Ejecutar la prueba unitaria
+### Paso 6. Ejecutar la prueba unitaria
 
 Teniendo los pasos anteriores ya solo falta ejecutar la prueba unitaria, con el siguiente comando:
 
 ```shell
-mvn test
+mvn test -Dmaven.install.skip=true
 ```

@@ -33,5 +33,10 @@
       <username>${GITHUB_ACTOR}</username>
       <password>${GITHUB_TOKEN}</password>
     </server>  
+    <server>
+      <id>...</id>
+      <username>BioAplicada</username>
+      <password>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</password>
+    </server>    
   </servers>  
 </settings>
